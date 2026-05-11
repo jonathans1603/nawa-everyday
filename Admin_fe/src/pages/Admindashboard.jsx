@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AdminMenu from './admin/AdminMenu.jsx';
-import AdminQRCode from './admin/AdminQRCode.jsx';
-import AdminUser from './admin/AdminUser.jsx';
-import AdminFeedback from './admin/AdminFeedback.jsx';
-import AdminReservation from './admin/AdminReservation.jsx';
-import AdminLaporan from './admin/AdminLaporan.jsx';
-import AdminAbout from './admin/AdminAbout.jsx';
+import AdminMenu from './Admin/AdminMenu.jsx';
+import AdminQRCode from './Admin/AdminQRcode.jsx';
+import AdminUser from './Admin/AdminUser.jsx';
+import AdminFeedback from './Admin/Adminfeedback.jsx';
+import AdminReservation from './Admin/AdminReservation.jsx';
+import AdminLaporan from './Admin/Adminlaporan.jsx';
+import AdminAbout from './Admin/Adminabout.jsx';
 import Nawalogo from '../assets/logo.jpg';
  
 const navItems = [
