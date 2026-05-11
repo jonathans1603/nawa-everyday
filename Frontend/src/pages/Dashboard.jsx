@@ -12,7 +12,6 @@ export default function Dashboard({ onNavigate }) {
         <Hero />
         <Specialities />
         <Facility />
-        <Facility />
       </main>
       <Footer />
     </div>
