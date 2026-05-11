@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logoImg from '../assets/logo.jpg';
  
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'https://nawa-everyday-production.up.railway.app/api';
  
 const STATUS_CONFIG = {
   Pending:    { label: 'Pending',    bg: '#fff3cd', color: '#856404', border: '#ffc107', icon: '🔔' },

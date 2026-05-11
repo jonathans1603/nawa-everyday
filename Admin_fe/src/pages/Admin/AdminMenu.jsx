@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
  
-const API = 'http://localhost:5000/api';
+const API = 'https://nawa-everyday-production.up.railway.app/api';
  
 const CATEGORIES = [
   'Main Course', 'Coffee', 'Snack', 'Non Coffee', 'Salad', 'Noodle',
@@ -78,7 +78,7 @@ export default function AdminMenu() {
       const fallback = (item.adds_on || '').split(',').map(s => s.trim()).filter(Boolean).map(s => ({ label: s, price: '0' }));
       setAddons(fallback);
     }
-    setPreview(item.gambar_menu ? `http://localhost:5000/uploads/${item.gambar_menu}` : null);
+    setPreview(item.gambar_menu ? `https://nawa-everyday-production.up.railway.app/uploads/${item.gambar_menu}` : null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
  
@@ -327,7 +327,7 @@ export default function AdminMenu() {
                     border: editId === item.menu_id ? '2px solid #6B7C4A' : '2px solid transparent',
                   }}>
                     <img
-                      src={item.gambar_menu ? `http://localhost:5000/uploads/${item.gambar_menu}` : '/default-image.png'}
+                      src={item.gambar_menu ? `https://nawa-everyday-production.up.railway.app/uploads/${item.gambar_menu}` : '/default-image.png'}
                       alt={item.menu_name} onError={e => { e.target.src = '/default-image.png'; }}
                       style={{ width: '64px', height: '64px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0, background: '#e8dcc8' }}
                     />

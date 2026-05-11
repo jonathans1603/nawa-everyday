@@ -119,7 +119,7 @@ export default function QRISPage({ cart = [], totalPrice = 0, tableNumber, order
     if (!orderId || paid) return;
     const interval = setInterval(async () => {
       try {
-        const res  = await fetch(`http://localhost:5000/api/orders/${orderId}`);
+        const res  = await fetch(`https://nawa-everyday-production.up.railway.app/api/orders/${orderId}`);
         const data = await res.json();
         if (data.order?.status === 'Diproses' || data.order?.status === 'Selesai') {
           setPaid(true);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
  
-const API = 'http://localhost:5000/api';
+const API = 'https://nawa-everyday-production.up.railway.app/api';
  
 const STATUS_OPTIONS = [
   { value: 'Open',          label: '🟢 Open',          color: '#065f46', bg: '#d1fae5', border: '#6ee7b7' },

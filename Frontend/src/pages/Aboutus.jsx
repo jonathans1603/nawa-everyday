@@ -3,7 +3,7 @@ import Header from '../components/Header';
 import cafeImg from '../assets/background_satu.png';
 import logoImg  from '../assets/logo.jpg';
  
-const API = 'http://localhost:5000/api';
+const API = 'https://nawa-everyday-production.up.railway.app/api';
  
 const accentColors = ['#6B7C4A', '#8b5e3c', '#4a7c59', '#7c4a6b', '#4a617c'];
 const bgColors     = ['#f0ede4', '#f7f0e8', '#edf4ef', '#f4edf4', '#edf0f7'];

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import logoImg from '../assets/logo.jpg';
  
-const API = 'http://localhost:5000/api';
+const API = 'https://nawa-everyday-production.up.railway.app/api';
 const formatPrice = (p) => 'Rp.' + Number(p).toLocaleString('id-ID') + ',00';
  
 export default function Payment({ cart, totalPrice, tableNumber, qrToken, onNavigate, onBack, onOrderSuccess }) {

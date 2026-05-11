@@ -3,7 +3,7 @@ import Header  from '../components/Header';
 import cafeImg from '../assets/background_satu.png';
 import logoImg  from '../assets/logo.jpg';
  
-const API = 'http://localhost:5000/api';
+const API = 'https://nawa-everyday-production.up.railway.app/api';
  
 const aspects = [
   { icon: '🍽️', label: 'Kualitas Makanan' },

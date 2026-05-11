@@ -2,11 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { toPng } from 'html-to-image';
  
-const API = 'http://localhost:5000/api';
+const API = 'https://nawa-everyday-production.up.railway.app/api';
  
 // ── URL QR mengarah ke frontend localhost:5173 ──
 // Ganti dengan domain asli saat production
-const FRONTEND_URL = 'http://localhost:5173';
+const FRONTEND_URL = 'https://nawa-everyday-frontend.vercel.app/';
 const makeQRUrl = (token) => `${FRONTEND_URL}/menu?token=${token}`;
  
 const formatDate = (dateStr) => {

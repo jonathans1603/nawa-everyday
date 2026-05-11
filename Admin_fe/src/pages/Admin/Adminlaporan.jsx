@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
  
-const API = 'http://localhost:5000/api';
+const API = 'https://nawa-everyday-production.up.railway.app/api';
  
 const fmt = (n) =>
   'Rp ' + Number(n).toLocaleString('id-ID');

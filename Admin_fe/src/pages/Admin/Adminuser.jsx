@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
  
-const API = 'http://localhost:5000/api';
+const API = 'https://nawa-everyday-production.up.railway.app/api';
  
 const roleColor = {
   admin:   'bg-red-100 text-red-700 border-red-200',

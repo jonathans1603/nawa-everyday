@@ -3,7 +3,7 @@ import Header from '../components/Header';
 import logoImg from '../assets/logo.jpg';
 import Cart from '../components/Cart';
  
-const API = 'http://localhost:5000/api';
+const API = 'https://nawa-everyday-production.up.railway.app/api';
  
 const categories = [
   { id: 'all',        label: 'All'        },
