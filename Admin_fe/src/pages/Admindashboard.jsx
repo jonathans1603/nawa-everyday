@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminMenu from './Admin/AdminMenu.jsx';
 import AdminQRCode from './Admin/AdminQRcode.jsx';
-import AdminUser from './Admin/AdminUser.jsx';
+import AdminUser from './Admin/Adminuser.jsx';
 import AdminFeedback from './Admin/Adminfeedback.jsx';
 import AdminReservation from './Admin/AdminReservation.jsx';
 import AdminLaporan from './Admin/Adminlaporan.jsx';
