@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Dashboard        from './pages/Dashboard';
-import AboutUs          from './pages/AboutUs';
-import Reservation      from './pages/Reservation';
+import AboutUs          from './pages/Aboutus';
+import Reservation      from './pages/reservation';
 import Feedback         from './pages/feedback';
 import Menu             from './pages/menu';
 import Payment          from './pages/payment';
