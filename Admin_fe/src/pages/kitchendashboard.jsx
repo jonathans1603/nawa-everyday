@@ -44,7 +44,7 @@ export default function KitchenDashboard() {
  
   async function fetchOrders() {
     try {
-      const res  = await fetch(`${API_URL}/api/orders/kitchen`);
+      const res  = await fetch(`${API_URL}/orders/kitchen`);
       if (!res.ok) throw new Error();
       const data = await res.json();
       const formatted = data.map(o => ({
@@ -74,7 +74,7 @@ export default function KitchenDashboard() {
     showToast(`Item #${id} → ${newStatus}`);
  
     try {
-      await fetch(`${API_URL}/api/orders/kitchen/${id}`, {
+      await fetch(`${API_URL}/orders/kitchen/${id}`, {
         method:  'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ status: newStatus }),
@@ -84,7 +84,7 @@ export default function KitchenDashboard() {
         const orderItems = orders.filter(o => o.order_id === current.order_id);
         const allDone    = orderItems.every(o => o.id === id ? true : o.status === 'Selesai');
         if (allDone) {
-          await fetch(`${API_URL}/api/orders/${current.order_id}/status`, {
+          await fetch(`${API_URL}/orders/${current.order_id}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: 'Selesai' }),

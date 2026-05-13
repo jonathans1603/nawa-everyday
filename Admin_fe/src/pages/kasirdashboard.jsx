@@ -72,7 +72,7 @@ export default function KasirDashboard() {
  
   async function fetchOrders() {
     try {
-      const res = await fetch(`${API_URL}/api/orders`);
+      const res = await fetch(`${API_URL}/orders`);
       if (!res.ok) throw new Error();
       setOrders(await res.json());
     } catch { setOrders([]); }
@@ -83,7 +83,7 @@ export default function KasirDashboard() {
     setOrders(prev => prev.map(o => o.order_id === id ? { ...o, status: newStatus } : o));
     showToast(`Order #${id} → ${newStatus}`);
     try {
-      await fetch(`${API_URL}/api/orders/${id}/status`, {
+      await fetch(`${API_URL}/orders/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus, payment_method: payment_method || null }),
