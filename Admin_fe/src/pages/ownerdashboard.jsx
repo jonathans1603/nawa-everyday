@@ -39,7 +39,7 @@ export default function OwnerDashboard() {
       const params = new URLSearchParams();
       if (dateFrom) params.append('from', dateFrom);
       if (dateTo)   params.append('to',   dateTo);
-      const res  = await fetch(`${API_URL}/api/orders/laporan?${params}`);
+      const res  = await fetch(`${API_URL}/orders/laporan?${params}`);
       const data = await res.json();
       setLaporan(data);
     } catch {
