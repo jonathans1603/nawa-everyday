@@ -10,7 +10,15 @@ const reservasiRoutes = require('./routes/reservasi.js'); // ← tambah
 const orderRoutes = require('./routes/order.js');
 const aboutRoutes = require('./routes/About');
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://nawa-everyday-frontend.vercel.app',
+    'https://nawa-everyday-admin.vercel.app',
+  ],
+  credentials: true,
+}));
 app.use(express.json());
 
 // Hubungkan rute auth
