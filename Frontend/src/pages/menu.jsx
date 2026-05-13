@@ -256,7 +256,7 @@ export default function Menu({ onNavigate, cart, setCart, onTableResolved }) {
           name:     item.menu_name,
           price:    item.menu_price,
           desc:     item.deskripsi_menu,
-          image:    item.gambar_menu ? `http://localhost:5000/uploads/${item.gambar_menu}` : '/default-image.png',
+          image:    item.gambar_menu ? `https://nawa-everyday-production.up.railway.app/uploads/${item.gambar_menu}` : '/default-image.png',
           status:   item.menu_status,
           // ✅ Parse adds_on jadi array object
           addons:   parseAddons(item.adds_on),
