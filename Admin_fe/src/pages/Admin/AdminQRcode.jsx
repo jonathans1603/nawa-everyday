@@ -6,7 +6,7 @@ const API = 'https://nawa-everyday-production.up.railway.app/api';
  
 // ── URL QR mengarah ke frontend localhost:5173 ──
 // Ganti dengan domain asli saat production
-const FRONTEND_URL = 'https://nawa-everyday-frontend.vercel.app/';
+const FRONTEND_URL = 'https://nawa-everyday-frontend.vercel.app';
 const makeQRUrl = (token) => `${FRONTEND_URL}/menu?token=${token}`;
  
 const formatDate = (dateStr) => {
