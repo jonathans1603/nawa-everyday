@@ -4,18 +4,22 @@ export default function Footer() {
   return (
     <footer id="contact">
       {/* Contact Section */}
-      <section className="relative">
-        {/* Background image */}
-        <img
-          src={backgroundfooter}
-          alt="cafe background"
-          className="w-full h-auto min-h-[420px] object-cover"
-          style={{ minHeight: 'clamp(420px, 80vw, 600px)' }}
-        />
+      <section
+        className="relative flex flex-col"
+        style={{
+          backgroundImage: `url(${backgroundfooter})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          minHeight: 'clamp(320px, 40vw, 480px)',
+        }}
+      >
+        {/* Overlay */}
         <div className="absolute inset-0 bg-black/50" />
  
-        <div className="absolute inset-0 flex flex-col px-4 sm:px-8 md:px-16 py-6 sm:py-8 overflow-y-auto">
- 
+        {/* Content */}
+        <div className="relative z-10 flex flex-col h-full px-4 sm:px-8 md:px-16 py-6 sm:py-8"
+          style={{ minHeight: 'clamp(320px, 40vw, 480px)' }}
+        >
           {/* Judul tengah atas */}
           <h2 className="text-white text-2xl sm:text-3xl font-bold font-serif italic text-center mb-5 sm:mb-8">
             Our Contact
@@ -59,7 +63,7 @@ export default function Footer() {
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5 shrink-0">
                   <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
                 </svg>
-                  <a
+                <a
                   href="https://www.tiktok.com/@nawa.everyday?is_from_webapp=1&sender_device=pc"
                   target="_blank"
                   rel="noreferrer"
@@ -71,8 +75,11 @@ export default function Footer() {
  
             </div>
  
-            {/* Kanan: Google Maps — tinggi mengikuti sisa ruang */}
-            <div className="rounded-2xl overflow-hidden shadow-xl w-full md:w-[45%] flex-shrink-0" style={{ height: "clamp(160px, 35vw, 260px)" }}>
+            {/* Kanan: Google Maps */}
+            <div
+              className="rounded-2xl overflow-hidden shadow-xl w-full md:w-[45%] flex-shrink-0"
+              style={{ height: 'clamp(160px, 20vw, 240px)' }}
+            >
               <iframe
                 title="Nawa Everyday Location"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.5263796100644!2d106.8562008!3d-6.3257609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69ed80e65f219f%3A0xaf8d286b8edfd7ad!2sNawa%20Everyday!5e0!3m2!1sid!2sid!4v1776918776676!5m2!1sid!2sid"
