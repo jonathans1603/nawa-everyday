@@ -5,7 +5,7 @@ import manggomatcha from '../assets/Manggo Matcha.png';
 import kopinawa     from '../assets/Kopi nawa.png';
 import background   from '../assets/background_kayu.png';
 import nasidori     from '../assets/Rice Dori.png';
-
+ 
 const menuItems = [
   { id: 1, name: "Nasi Goreng Nusantara", image: nasigoreng  },
   { id: 2, name: "Beef Pad Kra Pao",      image: beefpadkrao },
@@ -13,7 +13,7 @@ const menuItems = [
   { id: 4, name: "Kopi Nawa",              image: kopinawa    },
   { id: 5, name: "Nasi Dori",              image: nasidori    },
 ];
-
+ 
 // ── duplikat untuk infinite loop: [last, ...all, first]
 const CLONED = [
   { ...menuItems[menuItems.length - 1], id: 'clone-start' },
@@ -22,7 +22,7 @@ const CLONED = [
 ];
 const TOTAL   = menuItems.length;   // 5
 const OFFSET  = 1;                  // clone di depan
-
+ 
 // ── berapa card tampil per breakpoint
 function useVisible() {
   const get = () =>
@@ -36,7 +36,7 @@ function useVisible() {
   }, []);
   return v;
 }
-
+ 
 // ── satu card
 function MenuCard({ name, image, active }) {
   return (
@@ -69,30 +69,30 @@ function MenuCard({ name, image, active }) {
     </div>
   );
 }
-
+ 
 export default function Specialties() {
   // posisi di array CLONED; mulai di index OFFSET (item pertama asli)
   const [pos, setPos]         = useState(OFFSET);
   const [animated, setAnimated] = useState(true);
   const timerRef              = useRef(null);
   const visible               = useVisible();
-
+ 
   // indeks item "aktif" (tengah viewport)
   const realIndex = (pos - OFFSET + TOTAL) % TOTAL;
-
+ 
   // lebar 1 card dalam persen terhadap track
   const cardW = 100 / visible;
-
+ 
   // offset track sehingga card aktif berada di tengah
   const centerOffset = (visible - 1) / 2;
   const translateX   = -((pos - centerOffset) * cardW);
-
+ 
   // ── navigasi
   const moveTo = useCallback((next, anim = true) => {
     setAnimated(anim);
     setPos(next);
   }, []);
-
+ 
   // setelah lompat ke clone → diam-diam reset ke item asli
   useEffect(() => {
     if (pos === 0) {
@@ -106,26 +106,26 @@ export default function Specialties() {
       return () => clearTimeout(id);
     }
   }, [pos, moveTo]);
-
+ 
   const goNext = useCallback(() => moveTo(p => p + 1), [moveTo]);
   const goPrev = useCallback(() => moveTo(p => p - 1), [moveTo]);
   const goDot  = useCallback((i) => moveTo(i + OFFSET), [moveTo]);
-
+ 
   // ── auto-slide 5 detik
   const startTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(goNext, 5000);
   }, [goNext]);
-
+ 
   useEffect(() => {
     startTimer();
     return () => clearInterval(timerRef.current);
   }, [startTimer]);
-
+ 
   const handlePrev = () => { goPrev(); startTimer(); };
   const handleNext = () => { goNext(); startTimer(); };
   const handleDot  = (i) => { goDot(i); startTimer(); };
-
+ 
   // ── progress bar (5 detik)
   const [progress, setProgress] = useState(0);
   useEffect(() => {
@@ -135,10 +135,10 @@ export default function Specialties() {
     const id   = setInterval(() => setProgress(p => Math.min(p + inc, 100)), step);
     return () => clearInterval(id);
   }, [pos]);
-
+ 
   return (
     <section
-      className="py-10 px-4 bg-cover bg-center bg-no-repeat"
+      className="py-8 px-3 sm:px-4 bg-cover bg-center bg-no-repeat"
       style={{
         backgroundImage: `url(${background})`,
         backgroundSize: 'cover',
@@ -146,7 +146,7 @@ export default function Specialties() {
       }}
     >
       <div className="max-w-5xl mx-auto">
-
+ 
         {/* ── Judul */}
         <div className="flex justify-center mb-8">
           <div className="inline-flex items-center bg-white rounded-xl border-2 border-[#8b2e2e] px-7 py-3 shadow-md">
@@ -155,19 +155,19 @@ export default function Specialties() {
             </h2>
           </div>
         </div>
-
+ 
         {/* ── Wrapper: tombol kiri | track | tombol kanan */}
         <div className="flex items-center gap-3">
-
+ 
           {/* Tombol Kiri */}
           <button
             onClick={handlePrev}
             aria-label="Previous"
-            className="flex-shrink-0 w-11 h-11 rounded-full bg-white border-2 border-[#8b2e2e] text-[#8b2e2e] text-xl font-bold flex items-center justify-center shadow-md hover:bg-[#8b2e2e] hover:text-white transition-colors duration-200"
+            className="flex-shrink-0 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-white border-2 border-[#8b2e2e] text-[#8b2e2e] text-lg sm:text-xl font-bold flex items-center justify-center shadow-md hover:bg-[#8b2e2e] hover:text-white transition-colors duration-200"
           >
             ‹
           </button>
-
+ 
           {/* Track */}
           <div className="flex-1 overflow-hidden rounded-2xl">
             <div
@@ -196,20 +196,20 @@ export default function Specialties() {
               ))}
             </div>
           </div>
-
+ 
           {/* Tombol Kanan */}
           <button
             onClick={handleNext}
             aria-label="Next"
-            className="flex-shrink-0 w-11 h-11 rounded-full bg-white border-2 border-[#8b2e2e] text-[#8b2e2e] text-xl font-bold flex items-center justify-center shadow-md hover:bg-[#8b2e2e] hover:text-white transition-colors duration-200"
+            className="flex-shrink-0 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-white border-2 border-[#8b2e2e] text-[#8b2e2e] text-lg sm:text-xl font-bold flex items-center justify-center shadow-md hover:bg-[#8b2e2e] hover:text-white transition-colors duration-200"
           >
             ›
           </button>
         </div>
-
+ 
         {/* ── Dot indicator + progress bar */}
         <div className="flex flex-col items-center gap-3 mt-5">
-
+ 
           {/* Dots */}
           <div className="flex gap-2">
             {menuItems.map((_, i) => (
@@ -230,7 +230,7 @@ export default function Specialties() {
               />
             ))}
           </div>
-
+ 
           {/* Progress bar */}
           <div className="w-32 h-1 rounded-full bg-white/40 overflow-hidden">
             <div
@@ -239,7 +239,7 @@ export default function Specialties() {
             />
           </div>
         </div>
-
+ 
       </div>
     </section>
   );

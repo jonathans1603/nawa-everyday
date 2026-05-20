@@ -2,7 +2,7 @@ import Playbox from '../assets/Playbox.jpg';
 import MeetingRoom from '../assets/Meeting room.jpg';
 import OutdoorSpace from '../assets/Outdoor space.jpg';
 import backgroudemas from '../assets/background emas.png';
-
+ 
 const facilities = [
   {
     id: 1,
@@ -26,7 +26,7 @@ const facilities = [
       "Area outdoor yang asri dan nyaman, sempurna untuk menikmati makanan di bawah sinar matahari pagi.",
   },
 ];
-
+ 
 function FacilityCard({ title, image, description }) {
   return (
     <div className="bg-[#f5f0e8] rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-200 flex flex-col">
@@ -43,20 +43,20 @@ function FacilityCard({ title, image, description }) {
     </div>
   );
 }
-
+ 
 export default function Facility() {
   return (
     <section 
-    className="bg-[#f0e8d0] py-10 px-6"
+    className="bg-[#f0e8d0] py-8 px-4 sm:px-6"
     style={{ backgroundImage: `url(${backgroudemas})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <div className="max-w-5xl mx-auto">
-        <div className="bg-white/70 backdrop-blur-sm rounded-3xl px-8 py-10 shadow-lg">
+        <div className="bg-white/70 backdrop-blur-sm rounded-3xl px-4 sm:px-8 py-6 sm:py-10 shadow-lg">
         <div className="flex justify-center mb-10">
           <div className="inline-flex items-center border-2 border-[#3d3d3d] rounded-xl px-8 py-2 bg-white/80">
-            <h2 className="text-[#2e2e2e] font-bold text-2xl font-serif italic">Our Facility</h2>
+            <h2 className="text-[#2e2e2e] font-bold text-xl sm:text-2xl font-serif italic">Our Facility</h2>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
           {facilities.map((f) => (
             <FacilityCard key={f.id} title={f.title} image={f.image} description={f.description} />
           ))}

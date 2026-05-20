@@ -1,5 +1,5 @@
 import backgroundfooter from '../assets/background maps.jpg';
-
+ 
 export default function Footer() {
   return (
     <footer id="contact">
@@ -9,23 +9,24 @@ export default function Footer() {
         <img
           src={backgroundfooter}
           alt="cafe background"
-          className="w-full h-[420px] object-cover"
+          className="w-full h-auto min-h-[420px] object-cover"
+          style={{ minHeight: 'clamp(420px, 80vw, 600px)' }}
         />
         <div className="absolute inset-0 bg-black/50" />
-
-        <div className="absolute inset-0 flex flex-col px-8 md:px-16 py-8">
-
+ 
+        <div className="absolute inset-0 flex flex-col px-4 sm:px-8 md:px-16 py-6 sm:py-8 overflow-y-auto">
+ 
           {/* Judul tengah atas */}
-          <h2 className="text-white text-3xl font-bold font-serif italic text-center mb-8">
+          <h2 className="text-white text-2xl sm:text-3xl font-bold font-serif italic text-center mb-5 sm:mb-8">
             Our Contact
           </h2>
-
+ 
           {/* Konten: kiri info, kanan peta — sejajar vertikal */}
-          <div className="flex flex-col md:flex-row items-stretch justify-between gap-6 flex-1">
-
+          <div className="flex flex-col md:flex-row items-stretch justify-between gap-4 sm:gap-6 flex-1">
+ 
             {/* Kiri: Info Kontak */}
-            <div className="text-white space-y-5 flex flex-col justify-center flex-1">
-
+            <div className="text-white space-y-3 sm:space-y-5 flex flex-col justify-center flex-1">
+ 
               {/* Alamat */}
               <div className="flex items-start gap-3 text-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 mt-0.5 shrink-0">
@@ -37,7 +38,7 @@ export default function Footer() {
                   Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13770
                 </span>
               </div>
-
+ 
               {/* Instagram */}
               <div className="flex items-center gap-3 text-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5 shrink-0">
@@ -52,7 +53,7 @@ export default function Footer() {
                   Nawa Everyday
                 </a>
               </div>
-
+ 
               {/* TikTok */}
               <div className="flex items-center gap-3 text-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5 shrink-0">
@@ -67,11 +68,11 @@ export default function Footer() {
                   Nawa Everyday
                 </a>
               </div>
-
+ 
             </div>
-
+ 
             {/* Kanan: Google Maps — tinggi mengikuti sisa ruang */}
-            <div className="rounded-2xl overflow-hidden shadow-xl w-full md:w-[45%] flex-1 min-h-[200px]">
+            <div className="rounded-2xl overflow-hidden shadow-xl w-full md:w-[45%] flex-shrink-0" style={{ height: "clamp(160px, 35vw, 260px)" }}>
               <iframe
                 title="Nawa Everyday Location"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.5263796100644!2d106.8562008!3d-6.3257609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69ed80e65f219f%3A0xaf8d286b8edfd7ad!2sNawa%20Everyday!5e0!3m2!1sid!2sid!4v1776918776676!5m2!1sid!2sid"
@@ -83,11 +84,11 @@ export default function Footer() {
                 referrerPolicy="no-referrer-when-downgrade"
               />
             </div>
-
+ 
           </div>
         </div>
       </section>
-
+ 
       {/* Bottom bar */}
       <div className="bg-[#C4D0A3] text-center text-white font-semibold text-sm py-4">
         Created by Nawa Everyday
