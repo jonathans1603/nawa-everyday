@@ -67,6 +67,7 @@ export default function App() {
             qrToken={qrToken}
             orderId={orderId}
             onNavigate={handleNavigate}
+            onClearCart={() => setCart([])}  
     />
   );
       case 'cash':

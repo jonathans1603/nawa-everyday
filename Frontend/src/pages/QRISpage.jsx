@@ -101,9 +101,10 @@ function CountdownTimer({ seconds, onExpire }) {
  
 const formatPrice = (p) => 'Rp.' + Number(p).toLocaleString('id-ID') + ',00';
  
-export default function QRISPage({ cart = [], totalPrice = 0, tableNumber, orderId, onNavigate }) {
-  const [expired, setExpired] = useState(false);
-  const [paid,    setPaid]    = useState(false);
+export default function QRISPage({ cart = [], totalPrice = 0, tableNumber, orderId, onNavigate, onClearCart }) {
+  const [expired,   setExpired]   = useState(false);
+  const [paid,      setPaid]      = useState(false);
+  const [cancelled, setCancelled] = useState(false);
  
   // ✅ Mapping cart dengan selectedAddons (bukan ADDON_MAP lama)
   const items = cart.map(c => ({
@@ -116,7 +117,7 @@ export default function QRISPage({ cart = [], totalPrice = 0, tableNumber, order
  
   // Polling status pembayaran setiap 5 detik
   useEffect(() => {
-    if (!orderId || paid) return;
+    if (!orderId || paid || cancelled) return;
     const interval = setInterval(async () => {
       try {
         const res  = await fetch(`https://nawa-everyday-production.up.railway.app/api/orders/${orderId}`);
@@ -125,10 +126,14 @@ export default function QRISPage({ cart = [], totalPrice = 0, tableNumber, order
           setPaid(true);
           clearInterval(interval);
         }
+        if (data.order?.status === 'Dibatalkan') {
+          setCancelled(true);
+          clearInterval(interval);
+        }
       } catch { /* server offline — abaikan */ }
     }, 5000);
     return () => clearInterval(interval);
-  }, [orderId, paid]);
+  }, [orderId, paid, cancelled]);
  
   return (
     <div style={{ minHeight: '100vh', background: '#C4D0A3', display: 'flex', flexDirection: 'column' }}>
@@ -183,6 +188,48 @@ export default function QRISPage({ cart = [], totalPrice = 0, tableNumber, order
               </button>
             </div>
  
+          ) : cancelled ? (
+            /* ── DIBATALKAN ── */
+            <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+              <div style={{ fontSize: '64px', marginBottom: '16px' }}>❌</div>
+              <h2 style={{ fontFamily: "'Georgia', serif", fontSize: '24px', color: '#8B1A1A', margin: '0 0 10px', fontStyle: 'italic' }}>
+                Pembayaran Dibatalkan
+              </h2>
+              <p style={{ color: '#7a6652', fontSize: '14px', lineHeight: '1.7', marginBottom: '8px' }}>
+                Pesanan kamu telah dibatalkan oleh kasir.
+              </p>
+              <p style={{ color: '#9a8070', fontSize: '13px', marginBottom: '32px' }}>
+                Jika ada pertanyaan, silakan hubungi staff kami.
+              </p>
+
+              {/* Info order */}
+              <div style={{ display: 'inline-flex', gap: '12px', marginBottom: '32px', background: '#fee2e2', borderRadius: '12px', padding: '14px 24px', border: '1.5px solid #fca5a5' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ margin: '0 0 2px', fontSize: '11px', color: '#991b1b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Meja</p>
+                  <p style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#7f1d1d', fontFamily: "'Georgia', serif" }}>{tableNumber ?? '-'}</p>
+                </div>
+                <div style={{ width: '1px', background: '#fca5a5' }} />
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ margin: '0 0 2px', fontSize: '11px', color: '#991b1b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Order</p>
+                  <p style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#7f1d1d', fontFamily: "'Georgia', serif" }}>#{orderId ?? '-'}</p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => {
+                    if (onClearCart) onClearCart();
+                    onNavigate('menu');
+                  }}
+                  style={{ padding: '12px 36px', borderRadius: '50px', background: '#6B7C4A', color: '#f0ebd0', border: 'none', fontFamily: "'Georgia', serif", fontSize: '15px', fontStyle: 'italic', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 16px rgba(107,124,74,0.35)', transition: 'all 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#3d2b1f'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#6B7C4A'}
+                >
+                  🍽️ Kembali ke Menu
+                </button>
+              </div>
+            </div>
+
           ) : (
             /* ── MAIN ── */
             <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', flexWrap: 'wrap' }}>

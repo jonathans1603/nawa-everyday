@@ -17,6 +17,9 @@ export default function Cart({ open, cart, tableNumber, qrToken, onClose, onAdd,
     onClose();
     onNavigate('payment');
   };
+
+  // Expose onClear agar bisa dipanggil dari luar (QRISPage cancelled)
+  // onClear sudah dikirim dari App.jsx sebagai prop
  
   const handleClose = () => {
     setSuccess(false);
