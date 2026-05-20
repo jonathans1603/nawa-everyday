@@ -222,17 +222,19 @@ export default function Menu({ onNavigate, cart, setCart, onTableResolved }) {
  
   const [tableNumber, setTableNumber] = useState(0);
   const [tableId, setTableId]         = useState(null);
-  const [tokenError, setTokenError]   = useState(false);
- 
+  const [tokenError, setTokenError]   = useState(false); // QR tidak ditemukan (404)
+  const [tokenExpired, setTokenExpired] = useState(false); // QR expired (403)
+
   const params  = new URLSearchParams(window.location.search);
   const qrToken = params.get('token') || '';
- 
+
   useEffect(() => {
-    if (!qrToken) return;
+    if (!qrToken) { setTokenError(true); return; }
     const fetchTableByToken = async () => {
       try {
         const res  = await fetch(`${API}/tables/by-token/${qrToken}`);
-        if (!res.ok) { setTokenError(true); return; }
+        if (res.status === 403) { setTokenExpired(true); return; }
+        if (!res.ok)            { setTokenError(true);   return; }
         const data = await res.json();
         setTableNumber(data.table_number);
         setTableId(data.table_id);
@@ -244,6 +246,46 @@ export default function Menu({ onNavigate, cart, setCart, onTableResolved }) {
     };
     fetchTableByToken();
   }, [qrToken]);
+
+  // ── Halaman Error: QR Expired ──
+  if (tokenExpired) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#b5c98a', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', fontFamily: "'Georgia', serif" }}>
+        <div style={{ background: '#f5efe0', borderRadius: '24px', padding: '48px 36px', maxWidth: '400px', width: '100%', textAlign: 'center', boxShadow: '0 20px 60px rgba(61,43,31,0.2)' }}>
+          <div style={{ fontSize: '64px', marginBottom: '16px' }}>⏰</div>
+          <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#8B1A1A', margin: '0 0 10px' }}>QR Code Kadaluarsa</h1>
+          <p style={{ fontSize: '14px', color: '#7a6652', lineHeight: '1.7', margin: '0 0 28px' }}>
+            QR Code ini sudah tidak berlaku.<br />
+            Silakan minta QR Code terbaru kepada kasir untuk melanjutkan pemesanan.
+          </p>
+          <div style={{ background: '#fef3c7', border: '1.5px solid #fde68a', borderRadius: '12px', padding: '14px 18px', display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '20px' }}>🪑</span>
+            <span style={{ fontSize: '13px', color: '#92400e', fontWeight: '600' }}>Hubungi kasir untuk scan ulang</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Halaman Error: QR Tidak Valid ──
+  if (tokenError) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#b5c98a', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', fontFamily: "'Georgia', serif" }}>
+        <div style={{ background: '#f5efe0', borderRadius: '24px', padding: '48px 36px', maxWidth: '400px', width: '100%', textAlign: 'center', boxShadow: '0 20px 60px rgba(61,43,31,0.2)' }}>
+          <div style={{ fontSize: '64px', marginBottom: '16px' }}>🚫</div>
+          <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#8B1A1A', margin: '0 0 10px' }}>QR Code Tidak Valid</h1>
+          <p style={{ fontSize: '14px', color: '#7a6652', lineHeight: '1.7', margin: '0 0 28px' }}>
+            QR Code yang kamu gunakan tidak dikenali.<br />
+            Pastikan kamu scan QR Code yang benar dari meja kamu.
+          </p>
+          <div style={{ background: '#fee2e2', border: '1.5px solid #fca5a5', borderRadius: '12px', padding: '14px 18px', display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '20px' }}>📱</span>
+            <span style={{ fontSize: '13px', color: '#991b1b', fontWeight: '600' }}>Scan ulang QR Code dari meja</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
  
   useEffect(() => {
     const fetchMenu = async () => {
@@ -346,11 +388,7 @@ export default function Menu({ onNavigate, cart, setCart, onTableResolved }) {
               <div style={{ flex: 1, height: '1px', background: 'rgba(61,43,31,0.25)' }} />
             </div>
  
-            {tokenError ? (
-              <div style={{ marginBottom: '16px', padding: '10px 16px', background: '#f8d7da', color: '#721c24', borderRadius: '10px', fontSize: '13px', display: 'inline-block' }}>
-                ⚠️ QR Code tidak valid atau sudah kadaluarsa
-              </div>
-            ) : tableNumber > 0 ? (
+            {tableNumber > 0 ? (
               <div style={{ marginBottom: '16px', padding: '10px 18px', background: 'rgba(255,255,255,0.7)', borderRadius: '10px', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 2px 8px rgba(61,43,31,0.1)' }}>
                 <span style={{ fontSize: '18px' }}>🪑</span>
                 <span style={{ fontFamily: "'Georgia', serif", fontSize: '14px', fontWeight: '700', color: '#3d2b1f' }}>Meja {tableNumber}</span>
