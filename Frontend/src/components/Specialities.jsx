@@ -5,7 +5,8 @@ import manggomatcha from '../assets/Manggo Matcha.png';
 import kopinawa     from '../assets/Kopi nawa.png';
 import background   from '../assets/background_kayu.png';
 import nasidori     from '../assets/Rice Dori.png';
- 
+
+// ini untuk menu
 const menuItems = [
   { id: 1, name: "Nasi Goreng Nusantara", image: nasigoreng  },
   { id: 2, name: "Beef Pad Kra Pao",      image: beefpadkrao },
