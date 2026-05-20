@@ -1,13 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { toPng } from 'html-to-image';
  
 const API = 'https://nawa-everyday-production.up.railway.app/api';
- 
-// ── URL QR mengarah ke frontend localhost:5173 ──
-// Ganti dengan domain asli saat production
 const FRONTEND_URL = 'https://nawa-everyday-frontend.vercel.app';
 const makeQRUrl = (token) => `${FRONTEND_URL}/menu?token=${token}`;
+ 
+const QR_LIFETIME_MS = 90 * 60 * 1000; // 90 menit
  
 const formatDate = (dateStr) => {
   if (!dateStr) return '-';
@@ -15,6 +14,24 @@ const formatDate = (dateStr) => {
     day: '2-digit', month: 'short', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
   });
+};
+ 
+// Hitung sisa waktu dari qr_generated (atau qr_expires_at jika tersedia)
+const calcTimeLeft = (table) => {
+  const base = table.qr_expires_at
+    ? new Date(table.qr_expires_at).getTime() - Date.now()
+    : table.qr_generated
+      ? (new Date(table.qr_generated).getTime() + QR_LIFETIME_MS) - Date.now()
+      : 0;
+  return Math.max(0, base);
+};
+ 
+const fmtCountdown = (ms) => {
+  if (ms <= 0) return '00:00';
+  const totalSec = Math.floor(ms / 1000);
+  const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
+  const s = (totalSec % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
 };
  
 function QRPreview({ url, qrRef }) {
@@ -29,17 +46,68 @@ function QRPreview({ url, qrRef }) {
   );
 }
  
+// Komponen countdown per baris tabel
+function CountdownBadge({ table, onExpired }) {
+  const [ms, setMs] = useState(() => calcTimeLeft(table));
+ 
+  useEffect(() => {
+    setMs(calcTimeLeft(table));
+  }, [table.qr_generated, table.qr_expires_at]);
+ 
+  useEffect(() => {
+    if (ms <= 0) { onExpired(table.table_id); return; }
+    const id = setInterval(() => {
+      setMs(prev => {
+        const next = prev - 1000;
+        if (next <= 0) { clearInterval(id); onExpired(table.table_id); return 0; }
+        return next;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [ms]);
+ 
+  const pct = Math.min(100, (ms / QR_LIFETIME_MS) * 100);
+  const isWarning = ms < 10 * 60 * 1000; // < 10 menit
+  const isDanger  = ms < 3 * 60 * 1000;  // < 3 menit
+ 
+  const color = isDanger ? '#dc2626' : isWarning ? '#d97706' : '#6B7C4A';
+ 
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '90px' }}>
+      <span style={{
+        fontSize: '13px', fontWeight: '700', color,
+        fontFamily: 'monospace', letterSpacing: '1px',
+      }}>
+        {ms <= 0 ? '⏰ Expired' : `⏱ ${fmtCountdown(ms)}`}
+      </span>
+      {/* Progress bar */}
+      <div style={{ height: '4px', background: '#f0ebe0', borderRadius: '4px', overflow: 'hidden' }}>
+        <div style={{
+          height: '100%', width: `${pct}%`,
+          background: color,
+          borderRadius: '4px',
+          transition: 'width 1s linear',
+        }} />
+      </div>
+    </div>
+  );
+}
+ 
 export default function AdminQRCode() {
   const [tables, setTables]       = useState([]);
   const [selected, setSelected]   = useState(null);
   const [newNumber, setNewNumber] = useState('');
   const [loading, setLoading]     = useState(false);
   const [msg, setMsg]             = useState(null);
+  const [autoRefreshOn, setAutoRefreshOn] = useState(true);
+  const [nextAutoRefresh, setNextAutoRefresh] = useState(QR_LIFETIME_MS);
+  const autoRefreshRef = useRef(null);
+  const countdownRef   = useRef(null);
   const qrRef = useRef(null);
  
   const showMsg = (type, text) => {
     setMsg({ type, text });
-    setTimeout(() => setMsg(null), 3000);
+    setTimeout(() => setMsg(null), 3500);
   };
  
   const fetchTables = async () => {
@@ -53,6 +121,77 @@ export default function AdminQRCode() {
   };
  
   useEffect(() => { fetchTables(); }, []);
+ 
+  // ── Auto-refresh global setiap 90 menit ──
+  const startAutoRefresh = useCallback(() => {
+    clearInterval(autoRefreshRef.current);
+    clearInterval(countdownRef.current);
+ 
+    setNextAutoRefresh(QR_LIFETIME_MS);
+ 
+    // Countdown tick
+    countdownRef.current = setInterval(() => {
+      setNextAutoRefresh(prev => Math.max(0, prev - 1000));
+    }, 1000);
+ 
+    // Trigger regenerate semua setelah 90 menit
+    autoRefreshRef.current = setInterval(async () => {
+      try {
+        // Regenerate semua meja satu per satu (atau pakai endpoint bulk jika tersedia)
+        const res  = await fetch(`${API}/tables`);
+        const all  = await res.json();
+        await Promise.all(all.map(t =>
+          fetch(`${API}/tables/regenerate/${t.table_id}`, { method: 'PUT' })
+        ));
+        await fetchTables();
+        setNextAutoRefresh(QR_LIFETIME_MS); // reset countdown display
+        showMsg('success', '🔄 Semua QR Code telah diperbarui otomatis!');
+        // Update selected jika ada
+        setSelected(prev => {
+          if (!prev) return null;
+          return null; // tutup preview agar user tahu QR sudah berganti
+        });
+      } catch {
+        showMsg('error', 'Auto-refresh gagal, coba manual');
+      }
+    }, QR_LIFETIME_MS);
+  }, []);
+ 
+  useEffect(() => {
+    if (autoRefreshOn) {
+      startAutoRefresh();
+    } else {
+      clearInterval(autoRefreshRef.current);
+      clearInterval(countdownRef.current);
+    }
+    return () => {
+      clearInterval(autoRefreshRef.current);
+      clearInterval(countdownRef.current);
+    };
+  }, [autoRefreshOn]);
+ 
+  // Jika salah satu QR expired (per baris), regenerate otomatis
+  const handleRowExpired = useCallback(async (tableId) => {
+    try {
+      const res  = await fetch(`${API}/tables/regenerate/${tableId}`, { method: 'PUT' });
+      const data = await res.json();
+      if (res.ok) {
+        setTables(prev => prev.map(t =>
+          t.table_id === tableId
+            ? { ...t, qr_token: data.qr_token, qr_generated: data.qr_generated, qr_expires_at: data.qr_expires_at }
+            : t
+        ));
+        setSelected(prev =>
+          prev?.table_id === tableId
+            ? { ...prev, qr_token: data.qr_token, qr_generated: data.qr_generated, qr_expires_at: data.qr_expires_at }
+            : prev
+        );
+        showMsg('success', `🔄 QR Meja diperbarui otomatis (token expired)`);
+      }
+    } catch {
+      // silent fail, akan dicoba lagi
+    }
+  }, []);
  
   const handleAdd = async () => {
     const trimmed = newNumber.trim();
@@ -90,10 +229,17 @@ export default function AdminQRCode() {
       if (res.ok) {
         showMsg('success', 'QR Code berhasil diperbarui');
         setTables(prev => prev.map(t =>
-          t.table_id === id ? { ...t, qr_token: data.qr_token, qr_generated: data.qr_generated } : t
+          t.table_id === id
+            ? { ...t, qr_token: data.qr_token, qr_generated: data.qr_generated, qr_expires_at: data.qr_expires_at }
+            : t
         ));
         if (selected?.table_id === id) {
-          setSelected(prev => ({ ...prev, qr_token: data.qr_token, qr_generated: data.qr_generated }));
+          setSelected(prev => ({
+            ...prev,
+            qr_token: data.qr_token,
+            qr_generated: data.qr_generated,
+            qr_expires_at: data.qr_expires_at,
+          }));
         }
       }
     } catch {
@@ -144,9 +290,14 @@ export default function AdminQRCode() {
     });
   };
  
+  // Hitung countdown global untuk banner
+  const globalPct = Math.min(100, (nextAutoRefresh / QR_LIFETIME_MS) * 100);
+  const globalWarning = nextAutoRefresh < 10 * 60 * 1000;
+ 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', fontFamily: "'Georgia', serif" }}>
  
+      {/* Toast */}
       {msg && (
         <div style={{
           padding: '12px 18px', borderRadius: '10px', fontSize: '14px',
@@ -154,9 +305,68 @@ export default function AdminQRCode() {
           color:      msg.type === 'success' ? '#155724' : '#721c24',
           border: `1px solid ${msg.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`,
         }}>
-          {msg.type === 'success' ? '✅ ' : '❌ '}{msg.text}
+          {msg.text}
         </div>
       )}
+ 
+      {/* ── Banner Auto-Refresh ── */}
+      <div style={{
+        background: autoRefreshOn
+          ? (globalWarning ? 'linear-gradient(135deg,#7f1d1d,#991b1b)' : 'linear-gradient(135deg,#3a4a22,#4a5c30)')
+          : '#4b5563',
+        borderRadius: '14px', padding: '16px 20px',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+        color: '#f0ebd0',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <div style={{ fontSize: '13px', fontWeight: '700', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              🔄 Auto-Refresh QR Code
+              <span style={{
+                fontSize: '11px', padding: '2px 8px', borderRadius: '20px',
+                background: autoRefreshOn ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)',
+                fontWeight: '600',
+              }}>
+                {autoRefreshOn ? 'AKTIF' : 'NONAKTIF'}
+              </span>
+            </div>
+            {autoRefreshOn ? (
+              <div style={{ fontSize: '12px', opacity: 0.8 }}>
+                Semua QR akan diperbarui dalam:{' '}
+                <span style={{ fontFamily: 'monospace', fontWeight: '700', fontSize: '14px' }}>
+                  {fmtCountdown(nextAutoRefresh)}
+                </span>
+                {globalWarning && ' ⚠️ Segera diperbarui!'}
+              </div>
+            ) : (
+              <div style={{ fontSize: '12px', opacity: 0.7 }}>QR tidak akan diperbarui otomatis</div>
+            )}
+          </div>
+          <button
+            onClick={() => setAutoRefreshOn(v => !v)}
+            style={{
+              padding: '8px 18px', borderRadius: '8px', border: 'none',
+              background: autoRefreshOn ? 'rgba(255,255,255,0.15)' : '#6B7C4A',
+              color: '#f0ebd0', fontSize: '12px', fontWeight: '700',
+              cursor: 'pointer', fontFamily: "'Georgia', serif",
+              transition: 'all 0.2s',
+            }}
+          >
+            {autoRefreshOn ? '⏸ Nonaktifkan' : '▶ Aktifkan'}
+          </button>
+        </div>
+        {/* Progress bar global */}
+        {autoRefreshOn && (
+          <div style={{ marginTop: '10px', height: '5px', background: 'rgba(255,255,255,0.15)', borderRadius: '4px', overflow: 'hidden' }}>
+            <div style={{
+              height: '100%', width: `${globalPct}%`,
+              background: globalWarning ? '#fca5a5' : '#c8b97a',
+              borderRadius: '4px',
+              transition: 'width 1s linear',
+            }} />
+          </div>
+        )}
+      </div>
  
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' }}>
@@ -192,8 +402,6 @@ export default function AdminQRCode() {
           style={{ padding: '9px 20px', background: loading ? '#aaa' : '#6B7C4A', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: "'Georgia', serif" }}>
           {loading ? 'Menambahkan...' : '➕ Tambah Meja'}
         </button>
- 
-        {/* Info URL QR */}
         <div style={{ marginLeft: 'auto', fontSize: '11px', color: '#9a8070', textAlign: 'right' }}>
           <div>QR mengarah ke:</div>
           <code style={{ fontSize: '11px', color: '#6B7C4A' }}>{FRONTEND_URL}/menu?token=...</code>
@@ -216,7 +424,7 @@ export default function AdminQRCode() {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
               <thead>
                 <tr style={{ background: '#fdf9f4' }}>
-                  {['No', 'Meja', 'QR Token', 'URL QR', 'Dibuat', 'Aksi'].map(h => (
+                  {['No', 'Meja', 'QR Token', 'URL QR', 'Dibuat', 'Sisa Waktu', 'Aksi'].map(h => (
                     <th key={h} style={{ padding: '11px 14px', textAlign: 'left', color: '#7a6652', fontWeight: '600', fontSize: '12px', borderBottom: '1px solid #f0ebe0' }}>{h}</th>
                   ))}
                 </tr>
@@ -233,13 +441,25 @@ export default function AdminQRCode() {
                         </span>
                       ) : <span style={{ fontSize: '11px', color: '#ccc' }}>-</span>}
                     </td>
-                    {/* ── Kolom URL QR (baru) ── */}
                     <td style={{ padding: '12px 14px', maxWidth: '180px' }}>
                       <span style={{ fontSize: '10px', color: '#9a8070', fontFamily: 'monospace', wordBreak: 'break-all' }}>
                         {FRONTEND_URL}/menu?token={t.qr_token?.substring(0, 8)}...
                       </span>
                     </td>
                     <td style={{ padding: '12px 14px', color: '#9a8070', fontSize: '11.5px' }}>{formatDate(t.qr_generated)}</td>
+ 
+                    {/* ── Countdown per meja ── */}
+                    <td style={{ padding: '12px 14px' }}>
+                      {t.qr_token ? (
+                        <CountdownBadge
+                          table={t}
+                          onExpired={handleRowExpired}
+                        />
+                      ) : (
+                        <span style={{ fontSize: '11px', color: '#ccc' }}>-</span>
+                      )}
+                    </td>
+ 
                     <td style={{ padding: '12px 14px' }}>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                         <button onClick={() => setSelected(selected?.table_id === t.table_id ? null : t)}
@@ -272,6 +492,15 @@ export default function AdminQRCode() {
             </div>
             <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px' }}>
               <QRPreview url={makeQRUrl(selected.qr_token)} qrRef={qrRef} />
+ 
+              {/* Countdown di preview */}
+              <div style={{ width: '100%', background: '#f9f5ee', borderRadius: '10px', padding: '12px 16px' }}>
+                <div style={{ fontSize: '11px', color: '#9a8070', marginBottom: '6px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Sisa Waktu QR
+                </div>
+                <CountdownBadge table={selected} onExpired={handleRowExpired} />
+              </div>
+ 
               <div style={{ textAlign: 'center' }}>
                 <p style={{ fontWeight: '700', fontSize: '16px', color: '#3d2b1f', margin: '0 0 4px' }}>Meja {selected.table_number}</p>
                 <p style={{ fontSize: '11px', color: '#9a8070', margin: '0 0 4px' }}>Dibuat: {formatDate(selected.qr_generated)}</p>
